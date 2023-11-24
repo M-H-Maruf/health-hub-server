@@ -39,10 +39,7 @@ const verifyToken = async (req, res, next) => {
 };
 
 // Mongoose connection
-mongoose.connect(process.env.DB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
+mongoose.connect(process.env.DB_URI);
 
 // Mongoose Schema and Model for users 
 const userSchema = new mongoose.Schema({
@@ -53,7 +50,7 @@ const userSchema = new mongoose.Schema({
   timestamp: { type: Date, default: Date.now },
 });
 
-const usersModel = mongoose.model('User', userSchema);
+const usersModel = mongoose.model('users', userSchema);
 
 // Auth related API
 app.post('/jwt', async (req, res) => {
@@ -106,9 +103,11 @@ app.put('/users/:email', async (req, res) => {
   res.send(result);
 });
 
-// Send a ping to confirm a successful connection
-await mongoose.connection.db.admin().ping();
-console.log('Pinged your deployment. You successfully connected to MongoDB!');
+app.get('/users', async (req, res) => {
+  const result = await usersModel.find();
+  
+  res.send(result);
+});
 
 
 app.get('/', (req, res) => {
