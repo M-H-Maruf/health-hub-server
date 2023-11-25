@@ -138,7 +138,19 @@ app.get('/camps', async (req, res) => {
   }
 });
 
+// get 6 popular camps
+app.get('/popular-camps', async (req, res) => {
+  try {
+    const popularCamps = await Camp.find()
+      .sort({ peopleAttended: -1 })
+      .limit(6);
 
+    res.json(popularCamps);
+  } catch (error) {
+    console.error('Error fetching popular camps:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
 // server health
 app.get('/', (req, res) => {
