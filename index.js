@@ -41,7 +41,7 @@ const verifyToken = async (req, res, next) => {
 // Mongoose connection
 mongoose.connect(process.env.DB_URI);
 
-// Mongoose Schema and Model for users 
+// Mongoose Schema for users 
 const userSchema = new mongoose.Schema({
   email: String,
   displayName: String,
@@ -50,7 +50,24 @@ const userSchema = new mongoose.Schema({
   timestamp: { type: Date, default: Date.now },
 });
 
+// Mongoose Model for users
 const usersModel = mongoose.model('users', userSchema);
+
+// Mongoose Schema for camps
+const campSchema = new mongoose.Schema({
+  campName: String,
+  image: String,
+  scheduledDateTime: Date,
+  venueLocation: String,
+  specializedServices: String,
+  healthcareProfessionals: String,
+  targetAudience: String,
+  campFees: String,
+  peopleAttended: Number,
+});
+
+// Mongoose Model for camps
+const Camp = mongoose.model('camps', campSchema);
 
 // Auth related API
 app.post('/jwt', async (req, res) => {
@@ -103,13 +120,27 @@ app.put('/users/:email', async (req, res) => {
   res.send(result);
 });
 
+// get all users
 app.get('/users', async (req, res) => {
   const result = await usersModel.find();
-  
   res.send(result);
 });
 
+// get all camps
+app.get('/camps', async (req, res) => {
+  try {
+    const popularCamps = await Camp.find();
 
+    res.json(popularCamps);
+  } catch (error) {
+    console.error('Error fetching all camps:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+
+
+// server health
 app.get('/', (req, res) => {
   res.send('Hello from Health Hub Server..');
 });
