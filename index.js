@@ -110,11 +110,11 @@ const participantSchema = new mongoose.Schema({
   address: String,
   emergencyContact: String,
   healthInfo: String,
+  status: String,
 });
 
 // Mongoose Model for participants
 const Participant = mongoose.model('participants', participantSchema);
-
 
 // Mongoose Schema for newsletter
 const newsletterSchema = new mongoose.Schema({
@@ -249,14 +249,14 @@ app.get('/camp-details/:campId', async (req, res) => {
   }
 });
 
-// add participant
+// post participant
 app.post('/participant', async (req, res) => {
-  const { campId, participantData } = req.body;
-
+  const { campId, participantData, status } = req.body;
+console.log(campId, participantData);
   try {
     const participant = new Participant({
-      campId,
-      ...participantData,
+      campId, status,
+      ...participantData, status: "pending",
     });
 
     await participant.save();
