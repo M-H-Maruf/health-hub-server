@@ -69,6 +69,17 @@ const campSchema = new mongoose.Schema({
 // Mongoose Model for camps
 const Camp = mongoose.model('camps', campSchema);
 
+// Mongoose Schema for testimonials
+const testimonialSchema = new mongoose.Schema({
+  campName: { type: String, required: true },
+  date: { type: Date, default: Date.now },
+  feedback: { type: String, required: true },
+  rating: { type: Number, required: true },
+});
+
+// Mongoose Model for testimonials
+const Testimonial = mongoose.model('testimonials', testimonialSchema);
+
 // Auth related API
 app.post('/jwt', async (req, res) => {
   const user = req.body;
@@ -163,6 +174,17 @@ app.get('/least-popular-camps', async (req, res) => {
   } catch (error) {
     console.error('Error fetching popular camps:', error);
     res.status(500).send('Internal Server Error');
+  }
+});
+
+// get 4 recent testimonials
+app.get('/testimonials', async (req, res) => {
+  try {
+    const testimonials = await Testimonial.find().sort({ date: -1 }).limit(4);
+    res.json(testimonials);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Server Error');
   }
 });
 
