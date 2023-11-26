@@ -62,12 +62,28 @@ const campSchema = new mongoose.Schema({
   specializedServices: String,
   healthcareProfessionals: String,
   targetAudience: String,
-  campFees: String,
+  campFees: Number,
   peopleAttended: Number,
 });
 
 // Mongoose Model for camps
 const Camp = mongoose.model('camps', campSchema);
+
+// Mongoose Schema for camps
+const upcomingCampSchema = new mongoose.Schema({
+  campName: String,
+  image: String,
+  scheduledDateTime: Date,
+  venueLocation: String,
+  specializedServices: String,
+  healthcareProfessionals: String,
+  targetAudience: String,
+  campFees: Number,
+  peopleAttended: Number,
+});
+
+// Mongoose Model for camps
+const UpcomingCamp = mongoose.model('upcoming-camps', upcomingCampSchema);
 
 // Mongoose Schema for testimonials
 const testimonialSchema = new mongoose.Schema({
@@ -174,6 +190,18 @@ app.get('/least-popular-camps', async (req, res) => {
   } catch (error) {
     console.error('Error fetching popular camps:', error);
     res.status(500).send('Internal Server Error');
+  }
+});
+
+// get upcoming camps
+app.get('/upcoming-camps', async (req, res) => {
+  try {
+    const upcomingCamps = await UpcomingCamp.find();
+    console.log('Upcoming Camps:', upcomingCamps);
+    res.json(upcomingCamps);
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
