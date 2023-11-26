@@ -207,6 +207,29 @@ app.get('/least-popular-camps', async (req, res) => {
   }
 });
 
+// get a single camp by ID
+app.get('/camp-details/:campId', async (req, res) => {
+  try {
+    const campId = req.params.campId;
+
+    if (!mongoose.Types.ObjectId.isValid(campId)) {
+      return res.status(400).send('Invalid campId');
+    }
+
+    const camp = await Camp.findById(campId);
+
+    if (!camp) {
+      return res.status(404).send('Camp not found');
+    }
+
+    res.json(camp);
+  } catch (error) {
+    console.error('Error fetching camp details:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+
 // get upcoming camps
 app.get('/upcoming-camps', async (req, res) => {
   try {
