@@ -96,6 +96,20 @@ const testimonialSchema = new mongoose.Schema({
 // Mongoose Model for testimonials
 const Testimonial = mongoose.model('testimonials', testimonialSchema);
 
+// Mongoose Schema for newsletter
+const newsletterSchema = new mongoose.Schema({
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    trim: true,
+    lowercase: true,
+  },
+});
+
+// Mongoose Model for newsletter
+const Newsletter = mongoose.model('newsletters', newsletterSchema);
+
 // Auth related API
 app.post('/jwt', async (req, res) => {
   const user = req.body;
@@ -213,6 +227,26 @@ app.get('/testimonials', async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).send('Server Error');
+  }
+});
+
+// post in newsletter collection
+app.post('/newsletter', async (req, res) => {
+  try {
+    const { email } = req.body;
+    const existingSubscriber = await Newsletter.findOne({ email });
+
+    if (existingSubscriber) {
+      return res.status(400).json({ error: 'Email Already Subscribed!' });
+    }
+
+    const newSubscriber = new Newsletter({ email });
+    const result = await newSubscriber.save();
+
+    res.status(201).json(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
