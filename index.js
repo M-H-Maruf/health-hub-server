@@ -96,6 +96,26 @@ const testimonialSchema = new mongoose.Schema({
 // Mongoose Model for testimonials
 const Testimonial = mongoose.model('testimonials', testimonialSchema);
 
+// Mongoose Schema for participants
+const participantSchema = new mongoose.Schema({
+  campId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Camp',
+    required: true,
+  },
+  name: String,
+  age: Number,
+  phone: String,
+  gender: String,
+  address: String,
+  emergencyContact: String,
+  healthInfo: String,
+});
+
+// Mongoose Model for participants
+const Participant = mongoose.model('participants', participantSchema);
+
+
 // Mongoose Schema for newsletter
 const newsletterSchema = new mongoose.Schema({
   email: {
@@ -229,6 +249,24 @@ app.get('/camp-details/:campId', async (req, res) => {
   }
 });
 
+// add participant
+app.post('/participant', async (req, res) => {
+  const { campId, participantData } = req.body;
+
+  try {
+    const participant = new Participant({
+      campId,
+      ...participantData,
+    });
+
+    await participant.save();
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error saving participant data:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 
 // get upcoming camps
 app.get('/upcoming-camps', async (req, res) => {
