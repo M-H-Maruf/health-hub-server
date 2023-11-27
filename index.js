@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 require('dotenv').config();
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
@@ -52,6 +53,18 @@ const userSchema = new mongoose.Schema({
 
 // Mongoose Model for users
 const User = mongoose.model('users', userSchema);
+
+// Mongoose Schema for payments 
+const paymentSchema = new mongoose.Schema({
+  email: String,
+  price: Number,
+  transactionId: String,
+  date: Date,
+  campIds: [mongoose.Schema.Types.ObjectId],
+});
+
+// Mongoose Model for payments
+const Payment = mongoose.model('payments', paymentSchema);
 
 // Mongoose Schema for camps
 const campSchema = new mongoose.Schema({
@@ -322,7 +335,7 @@ app.post('/participant', async (req, res) => {
     paymentStatus } = req.body;
   try {
     const participant = new Participant({
-      campId, confirmationStatus:"pending",
+      campId, confirmationStatus: "pending",
       ...participantData, ...campData, paymentStatus: "pending",
     });
 
@@ -390,6 +403,40 @@ app.post('/newsletter', async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
+// payment intent
+app.post('/create-payment-intent', async (req, res) => {
+  const { price } = req.body;
+  const amount = parseInt(price * 100);
+  console.log(amount, 'amount inside the intent')
+
+  const paymentIntent = await stripe.paymentIntents.create({
+    amount: amount,
+    currency: 'usd',
+    payment_method_types: ['card']
+  });
+  res.send({
+    clientSecret: paymentIntent.client_secret
+  })
+});
+
+// create payment history in db
+app.post('/payments', async (req, res) => {
+  try {
+    const payment = req.body;
+
+    const paymentResult = await Payment.create(payment);
+
+    const campIds = payment.campIds.map(id => mongoose.Types.ObjectId(id));
+    const deleteResult = await Participant.deleteMany({ _id: { $in: campIds } });
+
+    res.send({ paymentResult, deleteResult });
+  } catch (error) {
+    console.error('Error processing payment:', error);
+    res.status(500).send({ error: 'Internal Server Error' });
+  }
+});
+
 
 // server health
 app.get('/', (req, res) => {
