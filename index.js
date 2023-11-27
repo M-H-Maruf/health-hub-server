@@ -213,6 +213,30 @@ app.get('/user/:email', async (req, res) => {
   }
 });
 
+// update user
+app.put('/user/:email', async (req, res) => {
+  const email = req.params.email;
+  const updatedUserData = req.body.UserData;
+
+  try {
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    user.displayName = updatedUserData.displayName || user.name;
+    user.photoURL = updatedUserData.photoURL || user.photoURL;
+
+    await user.save();
+
+    res.status(200).json({ message: 'User profile updated successfully' });
+  } catch (error) {
+    console.error('Error updating user profile:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
 // get all users
 app.get('/users', async (req, res) => {
   const result = await User.find();
