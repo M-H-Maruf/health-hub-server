@@ -438,7 +438,7 @@ app.post('/create-payment-intent', async (req, res) => {
   })
 });
 
-// create payment history in db
+// create payment history and update payment status in db
 app.post('/payments', async (req, res) => {
   try {
     const payment = req.body;
@@ -458,6 +458,17 @@ app.post('/payments', async (req, res) => {
   }
 });
 
+// get all camps
+app.get('/payments', async (req, res) => {
+  try {
+    const payments = await Payment.find();
+
+    res.json(payments);
+  } catch (error) {
+    console.error('Error fetching all camps:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
 // server health
 app.get('/', (req, res) => {
