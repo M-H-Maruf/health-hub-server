@@ -96,7 +96,7 @@ const testimonialSchema = new mongoose.Schema({
 // Mongoose Model for testimonials
 const Testimonial = mongoose.model('testimonials', testimonialSchema);
 
-// Mongoose Schema for participants
+// Mongoose Schema for registered participants
 const participantSchema = new mongoose.Schema({
   campId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -111,10 +111,11 @@ const participantSchema = new mongoose.Schema({
   emergencyContact: String,
   healthInfo: String,
   status: String,
+  userEmail: String,
 });
 
-// Mongoose Model for participants
-const Participant = mongoose.model('participants', participantSchema);
+// Mongoose Model for registered participants
+const Participant = mongoose.model('registered-participants', participantSchema);
 
 // Mongoose Schema for newsletter
 const newsletterSchema = new mongoose.Schema({
@@ -305,7 +306,7 @@ app.get('/camp-details/:campId', async (req, res) => {
   }
 });
 
-// post participant
+// post registered participant
 app.post('/participant', async (req, res) => {
   const { campId, participantData, status } = req.body;
   try {
@@ -320,6 +321,24 @@ app.post('/participant', async (req, res) => {
   } catch (error) {
     console.error('Error saving participant data:', error);
     res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// post registered camps
+app.get('/participant/:email', async (req, res) => {
+  const userEmail = req.params.email;
+
+  try {
+    const registeredCamps = await Participant.find({ userEmail })
+    const campIds = registeredCamps.map((participant) => participant.campId);
+    const objectIdCampIds = campIds.map((campId) => new mongoose.Types.ObjectId(campId));
+
+    // Fetch camps whose _id matches any of the provided camp IDs
+    const camps = await Camp.find({ _id: { $in: objectIdCampIds } });
+    res.json(camps);
+  } catch (error) {
+    console.error('Error fetching registered camps:', error);
+    res.status(500).send('Internal Server Error');
   }
 });
 
