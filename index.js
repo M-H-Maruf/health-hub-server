@@ -110,8 +110,18 @@ const participantSchema = new mongoose.Schema({
   address: String,
   emergencyContact: String,
   healthInfo: String,
-  status: String,
+  confirmationStatus: String,
+  paymentStatus: String,
   userEmail: String,
+  campName: String,
+  image: String,
+  scheduledDateTime: Date,
+  venueLocation: String,
+  specializedServices: String,
+  healthcareProfessionals: String,
+  targetAudience: String,
+  campFees: Number,
+  peopleAttended: Number,
 });
 
 // Mongoose Model for registered participants
@@ -308,11 +318,12 @@ app.get('/camp-details/:campId', async (req, res) => {
 
 // post registered participant
 app.post('/participant', async (req, res) => {
-  const { campId, participantData, status } = req.body;
+  const { campId, participantData, campData, confirmationStatus,
+    paymentStatus } = req.body;
   try {
     const participant = new Participant({
-      campId, status,
-      ...participantData, status: "pending",
+      campId, confirmationStatus:"pending",
+      ...participantData, ...campData, paymentStatus: "pending",
     });
 
     await participant.save();
@@ -330,12 +341,8 @@ app.get('/participant/:email', async (req, res) => {
 
   try {
     const registeredCamps = await Participant.find({ userEmail })
-    const campIds = registeredCamps.map((participant) => participant.campId);
-    const objectIdCampIds = campIds.map((campId) => new mongoose.Types.ObjectId(campId));
 
-    // Fetch camps whose _id matches any of the provided camp IDs
-    const camps = await Camp.find({ _id: { $in: objectIdCampIds } });
-    res.json(camps);
+    res.json(registeredCamps);
   } catch (error) {
     console.error('Error fetching registered camps:', error);
     res.status(500).send('Internal Server Error');
