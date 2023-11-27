@@ -50,7 +50,7 @@ const userSchema = new mongoose.Schema({
 });
 
 // Mongoose Model for users
-const usersModel = mongoose.model('users', userSchema);
+const User = mongoose.model('users', userSchema);
 
 // Mongoose Schema for camps
 const campSchema = new mongoose.Schema({
@@ -167,10 +167,10 @@ app.put('/users/:email', async (req, res) => {
   const user = req.body;
   const query = { email: email };
   const options = { upsert: true };
-  const isExist = await usersModel.findOne(query);
+  const isExist = await User.findOne(query);
   console.log('User found?----->', isExist);
   if (isExist) return res.send(isExist);
-  const result = await usersModel.updateOne(
+  const result = await User.updateOne(
     query,
     {
       $set: { ...user, timestamp: Date.now() },
@@ -185,12 +185,12 @@ app.post('/users', async (req, res) => {
   const userData = req.body;
   console.log(userData);
   try {
-    const existingUser = await usersModel.findOne({ email: userData.email });
+    const existingUser = await User.findOne({ email: userData.email });
     if (existingUser) {
       return res.send({ message: 'User already exists', insertedId: null });
     }
 
-    const newUser = new usersModel(userData);
+    const newUser = new User(userData);
     const result = await newUser.save();
 
     res.send({ message: 'User created successfully', insertedId: result._id });
@@ -200,9 +200,21 @@ app.post('/users', async (req, res) => {
   }
 });
 
+// get user role
+app.get('/user/:email', async (req, res) => {
+  try {
+    const email = req.params.email;
+    const result = await User.findOne({ email });
+    res.send(result);
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
 // get all users
 app.get('/users', async (req, res) => {
-  const result = await usersModel.find();
+  const result = await User.find();
   res.send(result);
 });
 
