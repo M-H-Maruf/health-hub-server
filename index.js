@@ -60,7 +60,7 @@ const paymentSchema = new mongoose.Schema({
   price: Number,
   transactionId: String,
   date: Date,
-  campIds: [mongoose.Schema.Types.ObjectId],
+  campId: String,
 });
 
 // Mongoose Model for payments
@@ -348,7 +348,7 @@ app.post('/participant', async (req, res) => {
   }
 });
 
-// post registered camps
+// get registered camps
 app.get('/participant/:email', async (req, res) => {
   const userEmail = req.params.email;
 
@@ -356,6 +356,24 @@ app.get('/participant/:email', async (req, res) => {
     const registeredCamps = await Participant.find({ userEmail })
 
     res.json(registeredCamps);
+  } catch (error) {
+    console.error('Error fetching registered camps:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+// get specific registered camp
+app.get('/registered/:id', async (req, res) => {
+  const participantId = req.params.id;
+
+  try {
+    const registeredCamp = await Participant.findById(participantId);
+
+    if (!registeredCamp) {
+      return res.status(404).json({ message: 'Participant not found' });
+    }
+
+    res.json(registeredCamp);
   } catch (error) {
     console.error('Error fetching registered camps:', error);
     res.status(500).send('Internal Server Error');
@@ -427,10 +445,13 @@ app.post('/payments', async (req, res) => {
 
     const paymentResult = await Payment.create(payment);
 
-    const campIds = payment.campIds.map(id => mongoose.Types.ObjectId(id));
-    const deleteResult = await Participant.deleteMany({ _id: { $in: campIds } });
+    const participantId = new mongoose.Types.ObjectId(payment.campId); 
+    const updateResult = await Participant.updateOne(
+      { _id: participantId },
+      { $set: { paymentStatus: 'paid' } }
+    );
 
-    res.send({ paymentResult, deleteResult });
+    res.send({ paymentResult, updateResult });
   } catch (error) {
     console.error('Error processing payment:', error);
     res.status(500).send({ error: 'Internal Server Error' });
