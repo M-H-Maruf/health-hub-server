@@ -45,6 +45,7 @@ mongoose.connect(process.env.DB_URI);
 const userSchema = new mongoose.Schema({
   email: String,
   displayName: String,
+  photoURL: String,
   role: String,
   timestamp: { type: Date, default: Date.now },
 });
@@ -200,7 +201,7 @@ app.post('/users', async (req, res) => {
   }
 });
 
-// get user role
+// get user
 app.get('/user/:email', async (req, res) => {
   try {
     const email = req.params.email;
