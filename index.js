@@ -458,7 +458,7 @@ app.post('/payments', async (req, res) => {
   }
 });
 
-// get all camps
+// get all payments
 app.get('/payments', async (req, res) => {
   try {
     const payments = await Payment.find();
@@ -466,6 +466,20 @@ app.get('/payments', async (req, res) => {
     res.json(payments);
   } catch (error) {
     console.error('Error fetching all camps:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+// get user specific all payments
+app.get('/payments/:email', async (req, res) => {
+  const email = req.params.email;
+
+  try {
+    const payments = await Payment.find({ email });
+
+    res.json(payments);
+  } catch (error) {
+    console.error('Error fetching payments:', error);
     res.status(500).send('Internal Server Error');
   }
 });
