@@ -45,7 +45,6 @@ mongoose.connect(process.env.DB_URI);
 const userSchema = new mongoose.Schema({
   email: String,
   displayName: String,
-  photoURL: String,
   role: String,
   timestamp: { type: Date, default: Date.now },
 });
@@ -181,6 +180,26 @@ app.put('/users/:email', async (req, res) => {
   res.send(result);
 });
 
+// create new user
+app.post('/users', async (req, res) => {
+  const userData = req.body;
+  console.log(userData);
+  try {
+    const existingUser = await usersModel.findOne({ email: userData.email });
+    if (existingUser) {
+      return res.send({ message: 'User already exists', insertedId: null });
+    }
+
+    const newUser = new usersModel(userData);
+    const result = await newUser.save();
+
+    res.send({ message: 'User created successfully', insertedId: result._id });
+  } catch (error) {
+    console.error('Error creating user:', error);
+    res.status(500).send({ message: 'Internal Server Error' });
+  }
+});
+
 // get all users
 app.get('/users', async (req, res) => {
   const result = await usersModel.find();
@@ -252,7 +271,6 @@ app.get('/camp-details/:campId', async (req, res) => {
 // post participant
 app.post('/participant', async (req, res) => {
   const { campId, participantData, status } = req.body;
-console.log(campId, participantData);
   try {
     const participant = new Participant({
       campId, status,
@@ -272,7 +290,6 @@ console.log(campId, participantData);
 app.get('/upcoming-camps', async (req, res) => {
   try {
     const upcomingCamps = await UpcomingCamp.find();
-    console.log('Upcoming Camps:', upcomingCamps);
     res.json(upcomingCamps);
   } catch (error) {
     console.error('Error:', error);
