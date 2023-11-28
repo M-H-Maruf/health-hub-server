@@ -417,6 +417,27 @@ app.get('/testimonials', async (req, res) => {
   }
 });
 
+// add a new testimonial
+app.post('/testimonials', async (req, res) => {
+  try {
+    const { campName, date, feedback, rating } = req.body;
+
+    const newTestimonial = new Testimonial({
+      campName,
+      date,
+      feedback,
+      rating,
+    });
+
+    const savedTestimonial = await newTestimonial.save();
+
+    res.json(savedTestimonial);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Server Error');
+  }
+});
+
 // post in newsletter collection
 app.post('/newsletter', async (req, res) => {
   try {
