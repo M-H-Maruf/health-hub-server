@@ -70,7 +70,7 @@ const Payment = mongoose.model('payments', paymentSchema);
 const campSchema = new mongoose.Schema({
   campName: String,
   image: String,
-  scheduledDateTime: Date,
+  scheduledDateTime: String,
   venueLocation: String,
   specializedServices: String,
   healthcareProfessionals: String,
@@ -275,6 +275,19 @@ app.get('/camps', async (req, res) => {
     res.json(popularCamps);
   } catch (error) {
     console.error('Error fetching all camps:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+// post a camp
+app.post('/camps', async (req, res) => {
+  try {
+    const newCamp = new Camp(req.body);
+    const savedCamp = await newCamp.save();
+
+    res.json(savedCamp);
+  } catch (error) {
+    console.error('Error saving the camp:', error);
     res.status(500).send('Internal Server Error');
   }
 });
