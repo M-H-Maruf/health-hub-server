@@ -329,7 +329,7 @@ app.get('/camp-details/:campId', async (req, res) => {
   }
 });
 
-// post registered participant
+// post registered camp
 app.post('/participant', async (req, res) => {
   const { campId, participantData, campData, confirmationStatus,
     paymentStatus } = req.body;
@@ -354,6 +354,21 @@ app.get('/participant/:email', async (req, res) => {
 
   try {
     const registeredCamps = await Participant.find({ userEmail })
+
+    res.json(registeredCamps);
+  } catch (error) {
+    console.error('Error fetching registered camps:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+// get attended registered camps
+app.get('/participant-attended/:email', async (req, res) => {
+  const userEmail = req.params.email;
+  const paymentStatus = "paid";
+
+  try {
+    const registeredCamps = await Participant.find({ userEmail, paymentStatus });
 
     res.json(registeredCamps);
   } catch (error) {
