@@ -483,7 +483,22 @@ app.put('/upcoming-camps/:id', async (req, res) => {
   }
 });
 
+// delete an upcoming camp
+app.delete('/upcoming-camps/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deletedCamp = await UpcomingCamp.findByIdAndDelete(id);
 
+    if (!deletedCamp) {
+      return res.status(404).json({ message: 'Camp not found' });
+    }
+
+    res.json({ message: 'Camp deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting the camp:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
 // get 4 recent testimonials
 app.get('/testimonials', async (req, res) => {
