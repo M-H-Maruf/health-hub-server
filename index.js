@@ -466,6 +466,24 @@ app.post('/upcoming-camps', async (req, res) => {
   }
 });
 
+// update an upcoming camp
+app.put('/upcoming-camps/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updatedCamp = await UpcomingCamp.findByIdAndUpdate(id, req.body, { new: true });
+
+    if (!updatedCamp) {
+      return res.status(404).json({ message: 'Camp not found' });
+    }
+
+    res.json(updatedCamp);
+  } catch (error) {
+    console.error('Error updating the camp:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+
 
 // get 4 recent testimonials
 app.get('/testimonials', async (req, res) => {
