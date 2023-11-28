@@ -442,6 +442,31 @@ app.get('/registered/:id', async (req, res) => {
   }
 });
 
+// confirm registered camp
+app.put('/participant-confirm/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ error: 'Invalid ID format' });
+    }
+
+    const participant = await Participant.findById(id);
+
+    if (!participant) {
+      return res.status(404).json({ error: 'Participant not found' });
+    }
+
+    participant.confirmationStatus = 'confirmed';
+    await participant.save();
+
+    res.json({ message: 'Confirmation status updated to confirmed' });
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 // get all upcoming camps
 app.get('/upcoming-camps', async (req, res) => {
   try {
