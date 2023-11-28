@@ -309,6 +309,23 @@ app.put('/camps/:id', async (req, res) => {
   }
 });
 
+// delete a camp
+app.delete('/camps/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deletedCamp = await Camp.findByIdAndDelete(id);
+
+    if (!deletedCamp) {
+      return res.status(404).json({ message: 'Camp not found' });
+    }
+
+    res.json({ message: 'Camp deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting the camp:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
 // get 6 popular camps
 app.get('/popular-camps', async (req, res) => {
   try {
