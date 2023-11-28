@@ -442,11 +442,33 @@ app.get('/registered/:id', async (req, res) => {
   }
 });
 
-// get upcoming camps
+// get all upcoming camps
 app.get('/upcoming-camps', async (req, res) => {
   try {
     const upcomingCamps = await UpcomingCamp.find();
     res.json(upcomingCamps);
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// get upcoming camp by id
+app.get('/upcoming-camps/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ error: 'Invalid ID format' });
+    }
+
+    const upcomingCamp = await UpcomingCamp.findById(id);
+
+    if (!upcomingCamp) {
+      return res.status(404).json({ error: 'Upcoming camp not found' });
+    }
+
+    res.json(upcomingCamp);
   } catch (error) {
     console.error('Error:', error);
     res.status(500).json({ error: 'Internal Server Error' });
