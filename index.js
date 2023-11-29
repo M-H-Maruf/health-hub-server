@@ -12,9 +12,7 @@ const port = process.env.PORT || 5000;
 
 // Pre-installed middlewares
 const corsOptions = {
-  origin: ['http://localhost:5173', 'http://localhost:5174'],
-  credentials: true,
-  optionSuccessStatus: 200,
+  origin: ['http://localhost:5173', 'http://localhost:5174', 'https://m-h-maruf-health-hub.surge.sh'],
 };
 
 app.use(cors(corsOptions));
@@ -644,7 +642,7 @@ app.post('/payments', async (req, res) => {
 
     const paymentResult = await Payment.create(payment);
 
-    const participantId = new mongoose.Types.ObjectId(payment.campId); 
+    const participantId = new mongoose.Types.ObjectId(payment.campId);
     const updateResult = await Participant.updateOne(
       { _id: participantId },
       { $set: { paymentStatus: 'paid' } }
